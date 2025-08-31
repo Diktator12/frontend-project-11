@@ -13,9 +13,9 @@ export const initI18n = () => {
           exampleUrl: 'Пример: https://lorem-rss.hexlet.app/feed',
           successAdd: 'RSS успешно загружен',
           validation: {
-            required: 'Ссылка обязательна для ввода.',
-            invalidUrl: 'Введите правильный URL.',
-            duplicate: 'Этот URL уже существует в списке.',
+            required: 'Не должно быть пустым',
+            invalidUrl: 'Ссылка должна быть валидным URL',
+            duplicate: 'RSS уже существует',
           },
         },
       },
