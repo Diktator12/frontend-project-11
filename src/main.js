@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const url = input.value.trim();
 
-    getSchema.validate({ url })
+    getSchema().validate({ url })
       .then(() => addFeed(url, feedback))
       .catch((error) => {
         feedback.textContent = error.errors[0];
