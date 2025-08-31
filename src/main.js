@@ -16,7 +16,7 @@ initI18n().then(() => {
   });
 });
 
-const schema = yup.object().shape({
+const getSchema = () => yup.object().shape({
   url: yup.string()
     .url()
     .required()
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const url = input.value.trim();
 
-    schema.validate({ url })
+    getSchema.validate({ url })
       .then(() => addFeed(url, feedback))
       .catch((error) => {
         feedback.textContent = error.errors[0];
