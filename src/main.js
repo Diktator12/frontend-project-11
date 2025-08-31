@@ -26,25 +26,32 @@ const getSchema = () => yup.object().shape({
 const fetchRSS = (url) => {
   const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=';
   return axios.get(proxyUrl + encodeURIComponent(url))
-    .then((res) => {
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(res.data, 'application/xml');
-
-      const title = xml.querySelector('channel > title')?.textContent;
-      const description = xml.querySelector('channel > description')?.textContent;
-      const items = Array.from(xml.querySelectorAll('item')).map((item) => ({
-        id: item.querySelector('guid')?.textContent,
-        title: item.querySelector('title')?.textContent,
-        link: item.querySelector('link')?.textContent,
-        description: item.querySelector('description')?.textContent,
-        read: false,
-      }));
-
-      return { title, description, posts: items };
-    })
+    .then((res) => parseRSS(res.data))
     .catch((err) => {
-      throw new Error('Не удалось загрузить RSS: ' + err.message);
+      throw new Error(err.message);
     });
+};
+
+const parseRSS = (xmlString) => {
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(xmlString, 'application/xml');
+
+  if (xml.querySelector('parsererror')) {
+    throw new Error(i18next.t('errors.invalidRss'));
+  }
+
+  const title = xml.querySelector('channel > title')?.textContent ?? '';
+  const description = xml.querySelector('channel > description')?.textContent ?? '';
+
+  const items = Array.from(xml.querySelectorAll('item')).map((item) => ({
+    id: item.querySelector('guid')?.textContent || item.querySelector('link')?.textContent,
+    title: item.querySelector('title')?.textContent ?? '',
+    link: item.querySelector('link')?.textContent ?? '',
+    description: item.querySelector('description')?.textContent ?? '',
+    read: false,
+  }));
+
+  return { title, description, posts: items };
 };
 
 const addFeed = (url, feedback) => {
