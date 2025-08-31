@@ -12,6 +12,7 @@ export const initI18n = () => {
           placeholderUrl: 'Ссылка RSS',
           exampleUrl: 'Пример: https://lorem-rss.hexlet.app/feed',
           successAdd: 'RSS успешно загружен',
+          invalidRss: 'Ресурс не содержит валидный RSS',
           validation: {
             required: 'Не должно быть пустым',
             invalidUrl: 'Ссылка должна быть валидным URL',
