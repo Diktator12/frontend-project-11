@@ -14,7 +14,7 @@ export const renderFeeds = (feeds) => {
     feedsList.appendChild(li);
   });
 
-  document.querySelector('.feeds .card-title').textContent = i18next.t('feed');
+  document.querySelector('.feeds .card-title').textContent = i18next.t('feeds');
 };
 
 export const renderPosts = (posts) => {
@@ -35,7 +35,7 @@ export const renderPosts = (posts) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    button.textContent = 'Просмотр';
+    button.textContent = i18next.t('view');
     button.dataset.bsToggle = 'modal';
     button.dataset.bsTarget = '#modal';
 

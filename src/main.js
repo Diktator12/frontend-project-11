@@ -10,8 +10,11 @@ const fetchRSS = (url) => {
   const proxyUrl = 'https://allorigins.hexlet.app/get?disableCache=true&url=';
   return axios.get(proxyUrl + encodeURIComponent(url))
     .then((res) => parseRSS(res.data.contents))
-    .catch(() => {
-      throw new Error('network');
+    .catch((err) => {
+      if (err.isAxiosError) {
+        throw new Error('network');
+      }
+      throw err;
     });
 };
 
@@ -23,10 +26,16 @@ const parseRSS = (xmlString) => {
     throw new Error('invalidRss');
   }
 
-  const title = xml.querySelector('channel > title')?.textContent ?? '';
-  const description = xml.querySelector('channel > description')?.textContent ?? '';
+  const channel = xml.querySelector('channel');
+  const itemEls = Array.from(xml.querySelectorAll('item'));
+  if (!channel || itemEls.length === 0) {
+    throw new Error('invalidRss');
+  }
 
-  const items = Array.from(xml.querySelectorAll('item')).map((item) => ({
+  const title = channel.querySelector('title')?.textContent ?? '';
+  const description = channel.querySelector('description')?.textContent ?? '';
+
+  const items = itemEls.map((item) => ({
     id: item.querySelector('guid')?.textContent || item.querySelector('link')?.textContent,
     title: item.querySelector('title')?.textContent ?? '',
     link: item.querySelector('link')?.textContent ?? '',
