@@ -18,5 +18,5 @@ make install
 make develop
 ```
 
-#### You can also visit the site on Vercel: `https://frontend-project-11-nine-omega.vercel.app`
+#### You can also visit the site on Vercel: https://frontend-project-11-nine-omega.vercel.app
 ##### RSS link for work example: `https://economictimes.indiatimes.com/rssfeedsdefault.cms`
