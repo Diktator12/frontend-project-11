@@ -9,13 +9,6 @@ import { initI18n } from './i18n/i18n.js';
 let feeds = [];
 let posts = [];
 
-initI18n().then(() => {
-  yup.setLocale({
-    mixed: { required: () => i18next.t('validation.required') },
-    string: { url: () => i18next.t('validation.invalidUrl') },
-  });
-});
-
 const getSchema = () => yup.object().shape({
   url: yup.string()
     .url()
@@ -95,31 +88,38 @@ const checkForUpdates = () => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-  const form = document.querySelector('.rss-form');
-  const input = document.getElementById('url-input');
-  const feedback = document.querySelector('.feedback');
+  initI18n().then(() => {
+    yup.setLocale({
+      mixed: { required: () => i18next.t('validation.required') },
+      string: { url: () => i18next.t('validation.invalidUrl') },
+    });
 
-  input.placeholder = i18next.t('placeholderUrl');
+    const form = document.querySelector('.rss-form');
+    const input = document.getElementById('url-input');
+    const feedback = document.querySelector('.feedback');
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    feedback.textContent = '';
+    input.placeholder = i18next.t('placeholderUrl');
 
-    const url = input.value.trim();
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      feedback.textContent = '';
 
-    getSchema().validate({ url })
-      .then(() => addFeed(url, feedback))
-      .catch((error) => {
-        feedback.textContent = error.errors[0];
-        input.classList.add('is-invalid');
-        feedback.classList.add('text-danger');
-      });
+      const url = input.value.trim();
+
+      getSchema().validate({ url })
+        .then(() => addFeed(url, feedback))
+        .catch((error) => {
+          feedback.textContent = error.errors[0];
+          input.classList.add('is-invalid');
+          feedback.classList.add('text-danger');
+        });
       input.value = '';
       input.focus();
-  });
+    });
 
-  input.addEventListener('input', () => {
-    input.classList.remove('is-invalid');
-    feedback.textContent = '';
+    input.addEventListener('input', () => {
+      input.classList.remove('is-invalid');
+      feedback.textContent = '';
+    });
   });
 });
