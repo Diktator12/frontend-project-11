@@ -6,11 +6,11 @@ import axios from 'axios'
 import { renderFeeds, renderPosts } from './view.js'
 import { initI18n } from './i18n/i18n.js'
 
-const fetchRSS = (url) => {
+const fetchRSS = url => {
   const proxyUrl = 'https://allorigins.hexlet.app/get?disableCache=true&url='
   return axios.get(proxyUrl + encodeURIComponent(url))
-    .then((res) => parseRSS(res.data.contents))
-    .catch((err) => {
+    .then(res => parseRSS(res.data.contents))
+    .catch(err => {
       if (err.isAxiosError) {
         throw new Error('network')
       }
@@ -18,7 +18,7 @@ const fetchRSS = (url) => {
     })
 }
 
-const parseRSS = (xmlString) => {
+const parseRSS = xmlString => {
   const parser = new DOMParser()
   const xml = parser.parseFromString(xmlString, 'application/xml')
 
@@ -35,7 +35,7 @@ const parseRSS = (xmlString) => {
   const title = channel.querySelector('title')?.textContent ?? ''
   const description = channel.querySelector('description')?.textContent ?? ''
 
-  const items = itemEls.map((item) => ({
+  const items = itemEls.map(item => ({
     id: item.querySelector('guid')?.textContent || item.querySelector('link')?.textContent,
     title: item.querySelector('title')?.textContent ?? '',
     link: item.querySelector('link')?.textContent ?? '',
@@ -59,10 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
       url: yup.string()
         .url('invalidUrl')
         .required('required')
-        .test('is-unique', 'exists', (value) => !feeds.some((f) => f.url === value)),
+        .test('is-unique', 'exists', value => !feeds.some(f => f.url === value)),
     })
 
-    const addFeed = (url) => {
+    const addFeed = url => {
       fetchRSS(url)
         .then(({ title, description, posts: newPosts }) => {
           feeds.unshift({ id: Date.now(), title, description, url })
@@ -77,18 +77,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
           if (feeds.length === 1) checkForUpdates()
         })
-        .catch((err) => {
+        .catch(err => {
           feedback.textContent = i18next.t(err.message)
           feedback.classList.add('text-danger')
         })
     }
 
     const checkForUpdates = () => {
-      const promises = feeds.map((f) =>
+      const promises = feeds.map(f =>
         fetchRSS(f.url)
           .then(({ posts: newPosts }) => {
-            const existingIds = new Set(posts.map((p) => p.id))
-            const freshPosts = newPosts.filter((p) => !existingIds.has(p.id))
+            const existingIds = new Set(posts.map(p => p.id))
+            const freshPosts = newPosts.filter(p => !existingIds.has(p.id))
 
             if (freshPosts.length) {
               posts.unshift(...freshPosts)
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
       Promise.all(promises).finally(() => setTimeout(checkForUpdates, 5000))
     }
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', e => {
       e.preventDefault()
       feedback.textContent = ''
 
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       getSchema().validate({ url })
         .then(() => addFeed(url))
-        .catch((error) => {
+        .catch(error => {
           feedback.textContent = i18next.t(error.message)
           input.classList.add('is-invalid')
           feedback.classList.add('text-danger')
