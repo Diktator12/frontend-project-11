@@ -15,7 +15,7 @@ export default defineConfig({
     'quotes': ['error', 'single'],
     'semi': ['error', 'never'],
     'no-extra-semi': 'error',
-    'arrow-parens': ['error', 'as-needed'],
+    'arrow-parens': ['error', 'always'],
     'comma-dangle': ['error', 'always-multiline'],
     'eol-last': ['error', 'always'],
   },
