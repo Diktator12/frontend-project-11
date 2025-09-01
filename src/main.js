@@ -9,7 +9,7 @@ import { initI18n } from './i18n/i18n.js'
 const fetchRSS = (url) => {
   const proxyUrl = 'https://allorigins.hexlet.app/get?disableCache=true&url='
   return axios.get(proxyUrl + encodeURIComponent(url))
-    .then((res) => parseRSS(res.data.contents))
+    .then(res => parseRSS(res.data.contents))
     .catch((err) => {
       if (err.isAxiosError) {
         throw new Error('network')
@@ -35,7 +35,7 @@ const parseRSS = (xmlString) => {
   const title = channel.querySelector('title')?.textContent ?? ''
   const description = channel.querySelector('description')?.textContent ?? ''
 
-  const items = itemEls.map((item) => ({
+  const items = itemEls.map(item => ({
     id: item.querySelector('guid')?.textContent || item.querySelector('link')?.textContent,
     title: item.querySelector('title')?.textContent ?? '',
     link: item.querySelector('link')?.textContent ?? '',
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
       url: yup.string()
         .url('invalidUrl')
         .required('required')
-        .test('is-unique', 'exists', (value) => !feeds.some((f) => f.url === value)),
+        .test('is-unique', 'exists', value => !feeds.some(f => f.url === value)),
     })
 
     const addFeed = (url) => {
@@ -84,11 +84,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const checkForUpdates = () => {
-      const promises = feeds.map((f) =>
+      const promises = feeds.map(f =>
         fetchRSS(f.url)
           .then(({ posts: newPosts }) => {
-            const existingIds = new Set(posts.map((p) => p.id))
-            const freshPosts = newPosts.filter((p) => !existingIds.has(p.id))
+            const existingIds = new Set(posts.map(p => p.id))
+            const freshPosts = newPosts.filter(p => !existingIds.has(p.id))
 
             if (freshPosts.length) {
               posts.unshift(...freshPosts)
