@@ -6,22 +6,12 @@ import axios from 'axios';
 import { renderFeeds, renderPosts } from './view.js';
 import { initI18n } from './i18n/i18n.js';
 
-let feeds = [];
-let posts = [];
-
-const getSchema = () => yup.object().shape({
-  url: yup.string()
-    .url()
-    .required()
-    .test('is-unique', i18next.t('validation.duplicate'), (value) => !feeds.some((f) => f.url === value)),
-});
-
 const fetchRSS = (url) => {
-  const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=';
+  const proxyUrl = 'https://allorigins.hexlet.app/get?disableCache=true&url=';
   return axios.get(proxyUrl + encodeURIComponent(url))
-    .then((res) => parseRSS(res.data))
-    .catch((err) => {
-      throw new Error(err.message);
+    .then((res) => parseRSS(res.data.contents))
+    .catch(() => {
+      throw new Error('network');
     });
 };
 
@@ -30,7 +20,7 @@ const parseRSS = (xmlString) => {
   const xml = parser.parseFromString(xmlString, 'application/xml');
 
   if (xml.querySelector('parsererror')) {
-    throw new Error(i18next.t('errors.invalidRss'));
+    throw new Error('invalidRss');
   }
 
   const title = xml.querySelector('channel > title')?.textContent ?? '';
@@ -47,58 +37,59 @@ const parseRSS = (xmlString) => {
   return { title, description, posts: items };
 };
 
-const addFeed = (url, feedback) => {
-  fetchRSS(url)
-    .then(({ title, description, posts: newPosts }) => {
-      feeds.unshift({ id: Date.now(), title, description, url });
-      posts.unshift(...newPosts);
-      renderFeeds(feeds);
-      renderPosts(posts);
-
-      feedback.textContent = i18next.t('successAdd');
-      feedback.classList.remove('text-danger');
-      feedback.classList.add('text-success');
-
-      if (feeds.length === 1) checkForUpdates();
-    })
-    .catch((err) => {
-      feedback.textContent = err.message || 'Не удалось загрузить RSS';
-      feedback.classList.add('text-danger');
-    });
-};
-
-const checkForUpdates = () => {
-  const promises = feeds.map((f) =>
-    fetchRSS(f.url)
-      .then(({ posts: newPosts }) => {
-        const existingIds = new Set(posts.map((p) => p.id));
-        const freshPosts = newPosts.filter((p) => !existingIds.has(p.id));
-
-        if (freshPosts.length) {
-          posts.unshift(...freshPosts);
-          renderPosts(posts);
-        }
-      })
-      .catch((err) => {
-        console.error(`Ошибка при обновлении ${f.url}:`, err.message);
-      })
-  );
-
-  Promise.all(promises).finally(() => setTimeout(checkForUpdates, 5000));
-};
-
 document.addEventListener('DOMContentLoaded', () => {
   initI18n().then(() => {
-    yup.setLocale({
-      mixed: { required: () => i18next.t('validation.required') },
-      string: { url: () => i18next.t('validation.invalidUrl') },
-    });
+    let feeds = [];
+    let posts = [];
 
     const form = document.querySelector('.rss-form');
     const input = document.getElementById('url-input');
     const feedback = document.querySelector('.feedback');
 
-    input.placeholder = i18next.t('placeholderUrl');
+    const getSchema = () => yup.object().shape({
+      url: yup.string()
+        .url('invalidUrl')
+        .required('required')
+        .test('is-unique', 'exists', (value) => !feeds.some((f) => f.url === value)),
+    });
+
+    const addFeed = (url) => {
+      fetchRSS(url)
+        .then(({ title, description, posts: newPosts }) => {
+          feeds.unshift({ id: Date.now(), title, description, url });
+          posts.unshift(...newPosts);
+
+          renderFeeds(feeds);
+          renderPosts(posts);
+
+          feedback.textContent = i18next.t('success');
+          feedback.classList.remove('text-danger');
+          feedback.classList.add('text-success');
+
+          if (feeds.length === 1) checkForUpdates();
+        })
+        .catch((err) => {
+          feedback.textContent = i18next.t(err.message);
+          feedback.classList.add('text-danger');
+        });
+    };
+
+    const checkForUpdates = () => {
+      const promises = feeds.map((f) =>
+        fetchRSS(f.url)
+          .then(({ posts: newPosts }) => {
+            const existingIds = new Set(posts.map((p) => p.id));
+            const freshPosts = newPosts.filter((p) => !existingIds.has(p.id));
+
+            if (freshPosts.length) {
+              posts.unshift(...freshPosts);
+              renderPosts(posts);
+            }
+          })
+          .catch(() => {}));
+
+      Promise.all(promises).finally(() => setTimeout(checkForUpdates, 5000));
+    };
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -107,9 +98,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const url = input.value.trim();
 
       getSchema().validate({ url })
-        .then(() => addFeed(url, feedback))
+        .then(() => addFeed(url))
         .catch((error) => {
-          feedback.textContent = error.errors[0];
+          feedback.textContent = i18next.t(error.message);
           input.classList.add('is-invalid');
           feedback.classList.add('text-danger');
         });
