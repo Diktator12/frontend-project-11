@@ -13,7 +13,7 @@
 make install
 ```
 
-## Starting a local server
+## 🌐 Starting a local server
 ```bash
 make develop
 ```
