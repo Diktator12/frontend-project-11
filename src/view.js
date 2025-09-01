@@ -1,10 +1,10 @@
 import i18next from 'i18next'
 
-export const renderFeeds = feeds => {
+export const renderFeeds = (feeds) => {
   const feedsList = document.querySelector('.feeds .list-group')
   feedsList.innerHTML = ''
 
-  feeds.forEach(feed => {
+  feeds.forEach((feed) => {
     const li = document.createElement('li')
     li.classList.add('list-group-item', 'border-0', 'border-end-0')
     li.innerHTML = `
@@ -17,11 +17,11 @@ export const renderFeeds = feeds => {
   document.querySelector('.feeds .card-title').textContent = i18next.t('feeds')
 }
 
-export const renderPosts = posts => {
+export const renderPosts = (posts) => {
   const postsList = document.querySelector('.posts .list-group')
   postsList.innerHTML = ''
 
-  posts.forEach(post => {
+  posts.forEach((post) => {
     const li = document.createElement('li')
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0')
 
