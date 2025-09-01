@@ -18,4 +18,4 @@ make install
 make develop
 ```
 
-#### You can also visit the site on Vercel: frontend-project-11-d1u425kjn-diktator12s-projects.vercel.app
+#### You can also visit the site on Vercel: https://frontend-project-11-d1u425kjn-diktator12s-projects.vercel.app
